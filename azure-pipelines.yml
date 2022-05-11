@@ -30,6 +30,20 @@ stages:
             targetType: 'inline'
             script: 'Install-Module Az.Resources -RequiredVersion 1.12.1-preview -AllowPrerelease -Force -Scope CurrentUser'
         - task: AzurePowerShell@5
+          inputs:
+            azureSubscription: 'devsecops_bench-sandbox-000-rg-000-connection'
+            ScriptType: 'InlineScript'
+            Inline: |
+              $Parameters = @{
+                ResourcegroupName     = "ARMDeploymentTest"
+                Templatefile          = ".\StorageAccount\azuredeploy.json"
+                TemplateParameterfile = ".\StorageAccount\azuredeploy.parameters.json"
+                Mode                  = 'Incremental'
+               }
+              $Result = Get-AzResourceGroupDeploymentWhatIfResult @Parameters
+              $Result
+            azurePowerShellVersion: 'LatestVersion'
+        - task: AzurePowerShell@5
           displayName: "Check for deletion"
           inputs:
             azureSubscription: 'devsecops_bench-sandbox-000-rg-000-connection'
